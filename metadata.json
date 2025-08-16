@@ -1,0 +1,5 @@
+{
+  "name": "Financial Calculator Pro",
+  "description": "A modern, config-driven financial calculator for computing EMI, Fixed Deposits, and Recurring Deposits with a clean and intuitive interface.",
+  "requestFramePermissions": []
+}
