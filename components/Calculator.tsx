@@ -224,9 +224,11 @@ const Calculator: React.FC = () => {
                 <p className="text-2xl sm:text-3xl font-bold text-green-900">
                     {calculator.resultPrefix}{result.toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}{calculator.resultSuffix}
                 </p>
-                <p className="text-sm text-green-700 mt-1 capitalize">
-                    {numberToIndianWords(Math.trunc(result).toString())} Rupees
-                </p>
+                {calculator.resultPrefix === '₹' && (
+                  <p className="text-sm text-green-700 mt-1 capitalize">
+                      {numberToIndianWords(Math.trunc(result).toString())} Rupees
+                  </p>
+                )}
               </div>
             </div>
           </div>
