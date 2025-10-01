@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { CALCULATORS_CONFIG } from '../constants';
-import type { CalculatorConfig, CalculatorField } from '../types';
-import Card from './ui/Card';
-import Input from './ui/Input';
-import Slider from './ui/Slider';
-import { AlertCircleIcon, TrendingUpIcon } from './icons';
+import { CALCULATORS_CONFIG } from '../constants.ts';
+import type { CalculatorConfig, CalculatorField } from '../types.ts';
+import Card from './ui/Card.tsx';
+import Input from './ui/Input.tsx';
+import Slider from './ui/Slider.tsx';
+import { AlertCircleIcon, TrendingUpIcon } from './icons.tsx';
 
 const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
 const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
