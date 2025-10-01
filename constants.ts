@@ -42,4 +42,19 @@ export const CALCULATORS_CONFIG: CalculatorConfig[] = [
     resultPrefix: '₹',
     resultDescription: 'Maturity Value'
   },
+  {
+    id: 'loan-eligibility',
+    type: 'Loan Eligibility Calculator',
+    description: 'Estimate the loan amount you may be eligible for.',
+    fields: [
+      { name: 'I', label: 'Monthly Income', type: 'number', description: 'Your gross monthly income.', control: 'input', defaultValue: '50000' },
+      { name: 'E', label: 'Monthly Expenses', type: 'number', description: 'Your total monthly expenses.', control: 'input', defaultValue: '20000' },
+      { name: 'R', label: 'Annual Interest Rate', type: 'number', description: 'The expected annual interest rate.', control: 'slider', min: 1, max: 25, step: 0.1, defaultValue: '10', unit: '%' },
+      { name: 'N', label: 'Loan Tenure', type: 'number', description: 'The desired loan tenure in years.', control: 'slider', min: 1, max: 40, step: 1, defaultValue: '20', unit: 'Years' },
+      { name: 'EMI_PERCENT', label: 'Affordable EMI Percentage', type: 'number', description: 'The percentage of your disposable income you want to use for the EMI.', control: 'slider', min: 1, max: 80, step: 1, defaultValue: '50', unit: '%' },
+    ],
+    formula: '(((I - E) * (EMI_PERCENT/100)) * (Math.pow(1 + (R/1200), N*12) - 1)) / ((R/1200) * Math.pow(1 + (R/1200), N*12))',
+    resultPrefix: '₹',
+    resultDescription: 'Eligible Loan Amount'
+  },
 ];
