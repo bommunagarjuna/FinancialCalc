@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
-import Calculator from './components/Calculator';
-import { CALCULATORS_CONFIG } from './constants';
-import Button from './components/ui/Button';
-import { MenuIcon, CalculatorIcon } from './components/icons';
+import Sidebar from './components/Sidebar.tsx';
+import Calculator from './components/Calculator.tsx';
+import { CALCULATORS_CONFIG } from './constants.ts';
+import Button from './components/ui/Button.tsx';
+import { MenuIcon, CalculatorIcon } from './components/icons.tsx';
 
 const App: React.FC = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);

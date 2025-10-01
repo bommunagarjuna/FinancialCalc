@@ -1,5 +1,5 @@
 
-import { CalculatorConfig } from './types';
+import { CalculatorConfig } from './types.ts';
 
 export const CALCULATORS_CONFIG: CalculatorConfig[] = [
   {

@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { CALCULATORS_CONFIG } from '../constants';
-import { CalculatorIcon, XIcon } from './icons';
-import Button from './ui/Button';
+import { CALCULATORS_CONFIG } from '../constants.ts';
+import { CalculatorIcon, XIcon } from './icons.tsx';
+import Button from './ui/Button.tsx';
 
 interface SidebarProps {
   isOpen: boolean;
