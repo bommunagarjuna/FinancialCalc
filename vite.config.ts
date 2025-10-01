@@ -5,8 +5,8 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
-  // base path for GitHub Pages (repo name)
-  base: '/FinancialCalc/',
+  // Use a relative base so built assets use relative URLs and work on GitHub Pages
+  base: './',
       server: {
         port: 3000,
         host: '0.0.0.0',
