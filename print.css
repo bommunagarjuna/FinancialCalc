@@ -1,0 +1,41 @@
+@media print {
+  body, html, #root {
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  .overflow-hidden, .overflow-y-auto {
+    overflow: visible !important;
+  }
+
+  .h-screen {
+    height: auto !important;
+  }
+
+  aside, header.md\:hidden {
+    display: none !important;
+  }
+
+  main {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-y: visible !important;
+  }
+
+  .flex-1 {
+    flex: 1 1 auto !important;
+  }
+
+  .max-w-4xl {
+    max-width: 100% !important;
+  }
+
+  .p-6 {
+    overflow: visible !important;
+  }
+
+  .overflow-x-auto {
+    overflow-x: visible !important;
+  }
+}

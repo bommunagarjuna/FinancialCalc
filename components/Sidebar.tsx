@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { CALCULATORS_CONFIG } from '../constants.ts';
 import { CalculatorIcon, XIcon } from './icons.tsx';
 import Button from './ui/Button.tsx';
+import Input from './ui/Input.tsx';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -11,12 +12,18 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+  const [searchQuery, setSearchQuery] = useState('');
   const activeLinkClass = 'bg-primary text-primary-foreground';
   const inactiveLinkClass = 'text-muted-foreground hover:bg-muted/DEFAULT hover:text-foreground';
 
   const handleLinkClick = () => {
     onClose();
   };
+
+  const filteredCalculators = CALCULATORS_CONFIG.filter(calculator =>
+    calculator.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    calculator.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <>
@@ -44,8 +51,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </Button>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-          {CALCULATORS_CONFIG.map((calculator) => (
+        <div className="p-4">
+          <Input
+            type="text"
+            placeholder="Search calculators..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
+        </div>
+
+        <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
+          {filteredCalculators.map((calculator) => (
             <NavLink
               key={calculator.id}
               to={`/calculator/${calculator.id}`}

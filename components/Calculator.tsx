@@ -5,6 +5,8 @@ import type { CalculatorConfig, CalculatorField } from '../types.ts';
 import Card from './ui/Card.tsx';
 import Input from './ui/Input.tsx';
 import Slider from './ui/Slider.tsx';
+import DonutChart from './ui/DonutChart.tsx';
+import ProjectionTable from './ui/ProjectionTable.tsx';
 import { AlertCircleIcon, TrendingUpIcon } from './icons.tsx';
 
 const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
@@ -54,6 +56,8 @@ const Calculator: React.FC = () => {
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [result, setResult] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [projectionData, setProjectionData] = useState<any[]>([]);
 
   const getInitialFormValues = useCallback((calc: CalculatorConfig) => {
     return calc.fields.reduce((acc, field) => {
@@ -126,6 +130,43 @@ const Calculator: React.FC = () => {
         setResult(null);
     }
   }, [formValues, calculator]);
+
+  useEffect(() => {
+    setChartData([]);
+    if (result === null || !calculator?.chartConfig) {
+      setChartData([]);
+      return;
+    }
+
+    const dataScope = { ...formValues, result };
+    const newChartData = calculator.chartConfig.breakdown.map(part => {
+        const paramNames = Object.keys(dataScope);
+        const paramValues = Object.values(dataScope).map(v => parseFloat(v as string));
+        const valueFn = new Function(...paramNames, `return ${part.value}`);
+        return {
+            name: part.name,
+            value: valueFn(...paramValues),
+            color: part.color,
+        };
+    });
+
+    setChartData(newChartData);
+  }, [result, formValues, calculator]);
+
+  useEffect(() => {
+    if (result === null || !calculator?.projectionTableConfig) {
+      setProjectionData([]);
+      return;
+    }
+
+    const numericFormValues: Record<string, number> = {};
+    for (const key in formValues) {
+        numericFormValues[key] = parseFloat(formValues[key]);
+    }
+
+    const newProjectionData = calculator.projectionTableConfig.generateRows(numericFormValues, result);
+    setProjectionData(newProjectionData);
+  }, [result, formValues, calculator]);
 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -214,23 +255,46 @@ const Calculator: React.FC = () => {
 
       {result !== null && (
         <Card className="bg-green-50 border-green-200">
-          <div className="p-6">
+          <div className="p-6 flex flex-col md:flex-row items-center justify-between">
             <div className="flex items-center">
-              <div className="p-3 bg-green-100 rounded-full">
-                <TrendingUpIcon className="h-6 w-6 text-green-700" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-green-800 font-medium">{calculator.resultDescription}</p>
-                <p className="text-2xl sm:text-3xl font-bold text-green-900">
-                    {calculator.resultPrefix}{result.toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}{calculator.resultSuffix}
-                </p>
-                {calculator.resultPrefix === '₹' && (
-                  <p className="text-sm text-green-700 mt-1 capitalize">
-                      {numberToIndianWords(Math.trunc(result).toString())} Rupees
-                  </p>
-                )}
-              </div>
+                <div className="p-3 bg-green-100 rounded-full">
+                    <TrendingUpIcon className="h-6 w-6 text-green-700" />
+                </div>
+                <div className="ml-4">
+                    <p className="text-sm text-green-800 font-medium">{calculator.resultDescription}</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-green-900">
+                        {calculator.resultPrefix}{result.toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}{calculator.resultSuffix}
+                    </p>
+                    {calculator.resultPrefix === '₹' && (
+                    <p className="text-sm text-green-700 mt-1 capitalize">
+                        {numberToIndianWords(Math.trunc(result).toString())} Rupees
+                    </p>
+                    )}
+                </div>
             </div>
+            {chartData.length > 0 && (
+                <div className="mt-6 md:mt-0 md:ml-6 flex items-center">
+                    <DonutChart data={chartData} />
+                    <div className="ml-4 space-y-2">
+                        {chartData.map(item => (
+                            <div key={item.name} className="flex items-center text-sm">
+                                <span className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: item.color }}></span>
+                                <span className="font-medium">{item.name}:</span>
+                                <span className="ml-1 text-gray-600">₹{item.value.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+          </div>
+        </Card>
+      )}
+
+      {projectionData.length > 0 && calculator.projectionTableConfig && (
+        <Card>
+          <div className="p-6">
+            <h2 className="text-xl font-semibold mb-4">Projection Details</h2>
+            <ProjectionTable data={projectionData} columns={calculator.projectionTableConfig.columns} />
           </div>
         </Card>
       )}

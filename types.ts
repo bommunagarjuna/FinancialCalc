@@ -1,17 +1,3 @@
-
-export interface CalculatorField {
-  label: string;
-  name: string;
-  type: 'number';
-  description?: string;
-  control?: 'input' | 'slider';
-  min?: number;
-  max?: number;
-  step?: number;
-  defaultValue?: string;
-  unit?: string;
-}
-
 export interface CalculatorConfig {
   id: string;
   type: string;
@@ -21,4 +7,16 @@ export interface CalculatorConfig {
   resultPrefix?: string;
   resultSuffix?: string;
   resultDescription: string;
+  chartConfig?: {
+    total: string;
+    breakdown: {
+      name: string;
+      value: string;
+      color: string;
+    }[];
+  };
+  projectionTableConfig?: {
+    columns: { key: string; label: string }[];
+    generateRows: (formValues: Record<string, number>, result: number) => Record<string, any>[];
+  };
 }
