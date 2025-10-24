@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Sidebar from './components/Sidebar.tsx';
 import Calculator from './components/Calculator.tsx';
@@ -13,10 +13,14 @@ const App: React.FC = () => {
 
   const getCurrentPageTitle = () => {
     const calculatorId = location.pathname.split('/').pop();
-    if (!calculatorId) return 'FinCalc Pro';
+    if (!calculatorId || location.pathname === '/') return 'Financial Calculator Pro - EMI, SIP, Loan & Deposit Calculators';
     const currentCalculator = CALCULATORS_CONFIG.find(c => c.id === calculatorId);
-    return currentCalculator?.type || 'FinCalc Pro';
+    return currentCalculator ? `${currentCalculator.type} | Financial Calculator Pro` : 'Financial Calculator Pro';
   };
+
+  useEffect(() => {
+    document.title = getCurrentPageTitle();
+  }, [location]);
 
   return (
     <div className="flex h-screen bg-muted/DEFAULT text-foreground font-sans antialiased overflow-hidden">

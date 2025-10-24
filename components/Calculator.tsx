@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { CALCULATORS_CONFIG } from '../constants.ts';
+import { SEO_CONTENT, SeoContent } from '../seo-content.ts';
 import type { CalculatorConfig, CalculatorField } from '../types.ts';
 import Card from './ui/Card.tsx';
 import Input from './ui/Input.tsx';
@@ -53,6 +54,7 @@ const numberToIndianWords = (numStr: string): string => {
 const Calculator: React.FC = () => {
   const { calculatorId } = useParams<{ calculatorId: string }>();
   const [calculator, setCalculator] = useState<CalculatorConfig | undefined>(undefined);
+  const [seoContent, setSeoContent] = useState<SeoContent | undefined>(undefined);
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [result, setResult] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -73,6 +75,8 @@ const Calculator: React.FC = () => {
     
     if (currentCalculator) {
       setFormValues(getInitialFormValues(currentCalculator));
+      const currentSeoContent = SEO_CONTENT[currentCalculator.id];
+      setSeoContent(currentSeoContent);
     }
 
     setResult(null);
@@ -83,42 +87,48 @@ const Calculator: React.FC = () => {
   useEffect(() => {
     if (!calculator) return;
 
-    const values: Record<string, number> = {};
+    const values: Record<string, any> = {};
     let isReadyForCalculation = true;
 
-    // Validate all fields before calculating
     for (const field of calculator.fields) {
         const strValue = formValues[field.name];
         if (strValue === undefined || strValue.trim() === '') {
             isReadyForCalculation = false;
             break;
         }
-        const numValue = parseFloat(strValue);
-        if (isNaN(numValue) || numValue < 0) {
-            isReadyForCalculation = false;
-            break;
+        if (field.type === 'number') {
+            const numValue = parseFloat(strValue);
+            if (isNaN(numValue) || numValue < 0) {
+                isReadyForCalculation = false;
+                break;
+            }
+            values[field.name] = numValue;
+        } else {
+            values[field.name] = strValue;
         }
-        values[field.name] = numValue;
     }
 
-    // If not all fields are valid and filled, reset result/error and exit
     if (!isReadyForCalculation) {
         setResult(null);
         setError(null);
         return;
     }
 
-    setError(null); // Clear previous errors
+    setError(null);
 
     try {
-        const paramNames = calculator.fields.map(f => f.name);
-        const paramValues = paramNames.map(name => values[name]);
-      
-        // Using Function constructor as per original design for dynamic formulas
-        const formula = calculator.formula;
-        const calculate = new Function(...paramNames, `return ${formula}`);
-        const calculatedResult = calculate(...paramValues);
-      
+        let calculatedResult: number;
+        if (calculator.calculate) {
+            calculatedResult = calculator.calculate(values);
+        } else if (calculator.formula) {
+            const paramNames = calculator.fields.map(f => f.name);
+            const paramValues = paramNames.map(name => values[name]);
+            const calculate = new Function(...paramNames, `return ${calculator.formula}`);
+            calculatedResult = calculate(...paramValues);
+        } else {
+            throw new Error("No formula or calculate function provided.");
+        }
+
         if (!isFinite(calculatedResult) || isNaN(calculatedResult)) {
             throw new Error("Calculation resulted in an invalid number. Please check your inputs.");
         }
@@ -182,7 +192,7 @@ const Calculator: React.FC = () => {
     <div className="max-w-4xl mx-auto space-y-6 md:space-y-8">
       <header>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground">{calculator.type}</h1>
-        <p className="text-muted-foreground mt-2">{calculator.description}</p>
+        <p className="text-muted-foreground mt-2">{seoContent ? seoContent.description : calculator.description}</p>
       </header>
 
       <Card>
@@ -217,7 +227,7 @@ const Calculator: React.FC = () => {
                       />
                     ) : (
                       <Input
-                        type={field.type}
+                        type={field.type || 'number'}
                         id={field.name}
                         name={field.name}
                         value={formValues[field.name] || ''}
@@ -297,6 +307,50 @@ const Calculator: React.FC = () => {
             <ProjectionTable data={projectionData} columns={calculator.projectionTableConfig.columns} />
           </div>
         </Card>
+      )}
+
+      {seoContent && (
+        <div className="space-y-6 md:space-y-8">
+            <Card>
+                <div className="p-6">
+                    <h2 className="text-xl font-semibold mb-4">{seoContent.explanation.title}</h2>
+                    <p className="text-muted-foreground whitespace-pre-line">{seoContent.explanation.content}</p>
+                </div>
+            </Card>
+
+            {seoContent.faq.length > 0 && (
+                <Card>
+                    <div className="p-6">
+                        <h2 className="text-xl font-semibold mb-4">Frequently Asked Questions</h2>
+                        <div className="space-y-4">
+                            {seoContent.faq.map((item, index) => (
+                                <div key={index}>
+                                    <h3 className="font-semibold">{item.question}</h3>
+                                    <p className="text-muted-foreground mt-1">{item.answer}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </Card>
+            )}
+
+            {seoContent.blogLinks.length > 0 && (
+                <Card>
+                    <div className="p-6">
+                        <h2 className="text-xl font-semibold mb-4">Further Reading</h2>
+                        <ul className="space-y-2">
+                            {seoContent.blogLinks.map((link, index) => (
+                                <li key={index}>
+                                    <a href={link.url} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                                        {link.title}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </Card>
+            )}
+        </div>
       )}
     </div>
   );
